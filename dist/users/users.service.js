@@ -18,79 +18,84 @@ const typeorm_1 = require("@nestjs/typeorm");
 const user_entity_1 = require("./entities/user.entity");
 const typeorm_2 = require("typeorm");
 const jwt_1 = require("@nestjs/jwt");
-const argon2 = require("argon2");
+const uuid_1 = require("uuid");
 let UsersService = class UsersService {
     constructor(repo, jwtService) {
         this.repo = repo;
         this.jwtService = jwtService;
     }
-    async create(createUserDto) {
-        const { email, password } = createUserDto;
-        const userExists = await this.repo.findOne({ where: { email } });
-        if (userExists) {
-            throw new common_1.BadRequestException('User with this email already exists');
-        }
-        const user = this.repo.create({
-            email,
-            password: await argon2.hash(password),
-        });
-        await this.repo.save(user);
-        return user;
-    }
-    async findAll() {
-        const users = await this.repo.find();
-        return users;
-    }
-    async findOne(id) {
-        const user = await this.repo.findOne({ where: { id } });
-        if (!user) {
-            throw new common_1.NotFoundException('user not found');
-        }
-        return user;
+    async deleteAll() {
+        await this.repo.delete({});
     }
     async findUser(id) {
         const user = await this.repo.findOne({ where: { id } });
+        if (!user) {
+            throw new common_1.NotFoundException("User not found");
+        }
         return user;
     }
-    async getTokens(userId) {
-        const [access_token, refresh_token] = await Promise.all([
-            this.jwtService.signAsync({
-                sub: userId,
-            }, {
-                secret: `${process.env.JWT_ACCESS_SECRET}`,
-                expiresIn: '7d',
-            }),
-            this.jwtService.signAsync({
-                sub: userId,
-            }, {
-                secret: `${process.env.JWT_REFRESH_SECRET}`,
-                expiresIn: '30d',
-            }),
-        ]);
-        return {
-            access_token,
-            refresh_token,
-        };
-    }
-    async refreshAccessToken(userId) {
-        const user = await this.findOne(userId);
-        if (!user) {
-            throw new common_1.BadRequestException('bad token');
+    async signup(signupDto) {
+        const { email, password } = signupDto;
+        const userExists = await this.repo.findOne({ where: { email } });
+        if (userExists) {
+            throw new common_1.BadRequestException("User already exists");
         }
-        const tokens = await this.getTokens(userId);
-        return tokens;
+        const code = (0, uuid_1.v4)();
+        const user = this.repo.create({
+            email,
+            password,
+            code,
+        });
+        await this.repo.save(user);
+        const token = await this.getTokens(user.id);
+        return token;
     }
     async login(loginDto) {
         const { email, password } = loginDto;
         const user = await this.repo.findOne({ where: { email } });
         if (!user) {
-            throw new common_1.BadRequestException('User do not exists');
+            throw new common_1.BadRequestException("User do not exists");
         }
-        const passwordMatches = await argon2.verify(user.password, password);
-        if (!passwordMatches)
-            throw new common_1.BadRequestException('Password is incorrect');
-        const tokens = await this.getTokens(user.id);
-        return tokens;
+        const passwordMatches = user.password === password;
+        if (!passwordMatches) {
+            throw new common_1.BadRequestException("Password is incorrect");
+        }
+        const token = await this.getTokens(user.id);
+        return token;
+    }
+    async loginCode(getCodeDto) {
+        const { code } = getCodeDto;
+        const user = await this.repo.findOne({ where: { code } });
+        if ((user === null || user === void 0 ? void 0 : user.code) !== code) {
+            throw new common_1.BadRequestException("Wrong code");
+        }
+        return {
+            email: user === null || user === void 0 ? void 0 : user.email,
+        };
+    }
+    async getTokens(userId) {
+        const [access_token] = await Promise.all([
+            this.jwtService.signAsync({
+                sub: userId,
+            }, {
+                secret: `${process.env.JWT_ACCESS_SECRET}`,
+                expiresIn: "7d",
+            }),
+        ]);
+        return {
+            access_token,
+        };
+    }
+    async getCode(id) {
+        const user = await this.repo.findOne({ where: { id } });
+        if (!user) {
+            throw new common_1.NotFoundException("Wrong credentials");
+        }
+        return { code: user.code };
+    }
+    async getUsers() {
+        const users = await this.repo.find();
+        return users;
     }
 };
 UsersService = __decorate([

@@ -38,6 +38,13 @@ export class UsersService {
 
   async signup(signupDto: SignupDto) {
     const { email, password } = signupDto;
+
+    const userExists = await this.repo.findOne({ where: { email } });
+
+    if (userExists) {
+      throw new BadRequestException("User already exists");
+    }
+
     const code = uuidv4();
     const user = this.repo.create({
       email,
@@ -45,7 +52,8 @@ export class UsersService {
       code,
     });
     await this.repo.save(user);
-    return user;
+    const token = await this.getTokens(user.id);
+    return token;
   }
 
   async login(loginDto: LoginDto) {

@@ -14,22 +14,13 @@ import { User } from "./users/entities/user.entity";
       accountSid: process.env.TWILIO_ACCOUNT_SID,
       authToken: process.env.TWILIO_AUTH_TOKEN,
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => {
-        return {
-          type: "postgres",
-          host: configService.get("DB_HOST"),
-          port: configService.get("DB_PORT"),
-          username: configService.get("DB_USERNAME"),
-          password: configService.get("DB_PASSWORD"),
-          database: configService.get("DB_DATABASE"),
-          entities: [User],
-          synchronize: true,
-          autoLoadEntities: true,
-        };
-      },
+
+    TypeOrmModule.forRoot({
+      type: "sqlite",
+      database: "db.sqlite",
+      entities: [User],
+      synchronize: true,
+      autoLoadEntities: true,
     }),
     UsersModule,
   ],

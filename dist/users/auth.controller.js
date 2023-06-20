@@ -17,39 +17,80 @@ const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const login_dto_1 = require("./dto/login.dto");
 const swagger_1 = require("@nestjs/swagger");
+const signup_dto_1 = require("./dto/signup.dto");
+const accessToken_guard_1 = require("../guards/accessToken.guard");
 const current_user_id_decorator_1 = require("../decorators/current-user-id.decorator");
-const refreshToken_guard_1 = require("../guards/refreshToken.guard");
+const get_code_dto_1 = require("./dto/get-code.dto");
 let AuthController = class AuthController {
     constructor(usersService) {
         this.usersService = usersService;
+    }
+    async signup(signupDto) {
+        return this.usersService.signup(signupDto);
     }
     async login(loginDto) {
         const result = await this.usersService.login(loginDto);
         return result;
     }
-    refreshAccessToken(userId) {
-        console.log(userId);
-        return this.usersService.refreshAccessToken(userId);
+    async deleteAll() {
+        return await this.usersService.deleteAll();
+    }
+    async loginCode(getCodeDto) {
+        const result = await this.usersService.loginCode(getCodeDto);
+        return result;
+    }
+    async getCode(userId) {
+        const result = await this.usersService.getCode(userId);
+        return result;
+    }
+    async getUsers() {
+        return await this.usersService.getUsers();
     }
 };
 __decorate([
-    (0, common_1.Post)('login'),
+    (0, common_1.Post)("signup"),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [signup_dto_1.SignupDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "signup", null);
+__decorate([
+    (0, common_1.Post)("login"),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
-    (0, common_1.UseGuards)(refreshToken_guard_1.RefreshTokenGuard),
-    (0, common_1.Post)('refresh-token'),
+    (0, common_1.Delete)("users"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "deleteAll", null);
+__decorate([
+    (0, common_1.Post)("login-code"),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [get_code_dto_1.GetCodeDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "loginCode", null);
+__decorate([
+    (0, common_1.UseGuards)(accessToken_guard_1.AccessTokenAccessGuard),
+    (0, common_1.Get)("code"),
     __param(0, (0, current_user_id_decorator_1.CurrentUserId)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "refreshAccessToken", null);
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "getCode", null);
+__decorate([
+    (0, common_1.Get)("users"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "getUsers", null);
 AuthController = __decorate([
-    (0, swagger_1.ApiTags)('Auth'),
-    (0, common_1.Controller)('auth'),
+    (0, swagger_1.ApiTags)("Auth"),
+    (0, common_1.Controller)("auth"),
     __metadata("design:paramtypes", [users_service_1.UsersService])
 ], AuthController);
 exports.AuthController = AuthController;
