@@ -37,7 +37,7 @@ export class UsersService {
   }
 
   async signup(signupDto: SignupDto) {
-    const { email, password } = signupDto;
+    const { email, password, username } = signupDto;
 
     const userExists = await this.repo.findOne({ where: { email } });
 
@@ -50,6 +50,7 @@ export class UsersService {
       email,
       password,
       code,
+      username,
     });
     await this.repo.save(user);
     const token = await this.getTokens(user.id);
@@ -57,9 +58,9 @@ export class UsersService {
   }
 
   async login(loginDto: LoginDto) {
-    const { email, password } = loginDto;
+    const { email, password, username } = loginDto;
 
-    const user = await this.repo.findOne({ where: { email } });
+    const user = await this.repo.findOne({ where: { email, username } });
     if (!user) {
       throw new BadRequestException("User do not exists");
     }
@@ -84,6 +85,7 @@ export class UsersService {
 
     return {
       email: user?.email,
+      username: user?.username,
     };
   }
 

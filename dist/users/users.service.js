@@ -35,7 +35,7 @@ let UsersService = class UsersService {
         return user;
     }
     async signup(signupDto) {
-        const { email, password } = signupDto;
+        const { email, password, username } = signupDto;
         const userExists = await this.repo.findOne({ where: { email } });
         if (userExists) {
             throw new common_1.BadRequestException("User already exists");
@@ -45,14 +45,15 @@ let UsersService = class UsersService {
             email,
             password,
             code,
+            username,
         });
         await this.repo.save(user);
         const token = await this.getTokens(user.id);
         return token;
     }
     async login(loginDto) {
-        const { email, password } = loginDto;
-        const user = await this.repo.findOne({ where: { email } });
+        const { email, password, username } = loginDto;
+        const user = await this.repo.findOne({ where: { email, username } });
         if (!user) {
             throw new common_1.BadRequestException("User do not exists");
         }
@@ -71,6 +72,7 @@ let UsersService = class UsersService {
         }
         return {
             email: user === null || user === void 0 ? void 0 : user.email,
+            username: user === null || user === void 0 ? void 0 : user.username,
         };
     }
     async getTokens(userId) {

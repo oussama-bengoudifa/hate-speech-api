@@ -14,6 +14,7 @@ export declare class AuthController {
     deleteAll(): Promise<void>;
     loginCode(getCodeDto: GetCodeDto): Promise<{
         email: string;
+        username: string;
     }>;
     getCode(userId: number): Promise<{
         code: string;

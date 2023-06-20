@@ -18,6 +18,7 @@ export declare class UsersService {
     }>;
     loginCode(getCodeDto: GetCodeDto): Promise<{
         email: string;
+        username: string;
     }>;
     getTokens(userId: number): Promise<{
         access_token: string;
