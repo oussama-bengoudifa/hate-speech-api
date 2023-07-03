@@ -12,7 +12,10 @@ export declare class AuthController {
     constructor(usersService: UsersService, repo: Repository<User>);
     signup(signupDto: SignupDto): Promise<User>;
     login(loginDto: LoginDto): Promise<{
-        access_token: string;
+        username: string;
+        token: {
+            access_token: string;
+        };
     }>;
     resetPassword(resetPasswordDto: ResetPasswordDto): Promise<{
         message: string;

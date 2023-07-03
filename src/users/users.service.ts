@@ -46,7 +46,7 @@ export class UsersService {
     const { email, password, username } = signupDto;
 
     const userExists = await this.repo.findOne({
-      where: [{ email }, { username }],
+      where: { email },
     });
 
     if (userExists) {
@@ -78,7 +78,8 @@ export class UsersService {
     }
 
     const token = await this.getTokens(user.id);
-    return token;
+    const u = { username: user.username };
+    return { token, ...u };
   }
 
   async loginCode(getCodeDto: GetCodeDto) {

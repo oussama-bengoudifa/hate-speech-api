@@ -15,7 +15,10 @@ export declare class UsersService {
     findUser(id: number): Promise<User>;
     signup(signupDto: SignupDto): Promise<User>;
     login(loginDto: LoginDto): Promise<{
-        access_token: string;
+        username: string;
+        token: {
+            access_token: string;
+        };
     }>;
     loginCode(getCodeDto: GetCodeDto): Promise<{
         email: string;

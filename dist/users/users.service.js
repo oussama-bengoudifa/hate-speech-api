@@ -39,7 +39,7 @@ let UsersService = class UsersService {
     async signup(signupDto) {
         const { email, password, username } = signupDto;
         const userExists = await this.repo.findOne({
-            where: [{ email }, { username }],
+            where: { email },
         });
         if (userExists) {
             throw new common_1.BadRequestException("User already exists");
@@ -64,7 +64,8 @@ let UsersService = class UsersService {
             throw new common_1.BadRequestException("Password is incorrect");
         }
         const token = await this.getTokens(user.id);
-        return token;
+        const u = { username: user.username };
+        return Object.assign({ token }, u);
     }
     async loginCode(getCodeDto) {
         const { code } = getCodeDto;
