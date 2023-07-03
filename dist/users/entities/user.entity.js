@@ -38,9 +38,17 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "isActive", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true, default: null }),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], User.prototype, "otp", void 0);
+], User.prototype, "otpCode", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Date)
+], User.prototype, "otpCodeExpireDate", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: 5 }),
+    __metadata("design:type", Number)
+], User.prototype, "optMaxTentative", void 0);
 User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);

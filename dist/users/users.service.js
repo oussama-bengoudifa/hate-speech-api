@@ -19,10 +19,12 @@ const user_entity_1 = require("./entities/user.entity");
 const typeorm_2 = require("typeorm");
 const jwt_1 = require("@nestjs/jwt");
 const uuid_1 = require("uuid");
+const mailer_1 = require("@nestjs-modules/mailer");
 let UsersService = class UsersService {
-    constructor(repo, jwtService) {
+    constructor(repo, jwtService, mailerService) {
         this.repo = repo;
         this.jwtService = jwtService;
+        this.mailerService = mailerService;
     }
     async deleteAll() {
         await this.repo.delete({});
@@ -36,7 +38,9 @@ let UsersService = class UsersService {
     }
     async signup(signupDto) {
         const { email, password, username } = signupDto;
-        const userExists = await this.repo.findOne({ where: { email } });
+        const userExists = await this.repo.findOne({
+            where: [{ email }, { username }],
+        });
         if (userExists) {
             throw new common_1.BadRequestException("User already exists");
         }
@@ -47,13 +51,11 @@ let UsersService = class UsersService {
             code,
             username,
         });
-        await this.repo.save(user);
-        const token = await this.getTokens(user.id);
-        return token;
+        return await this.repo.save(user);
     }
     async login(loginDto) {
         const { email, password, username } = loginDto;
-        const user = await this.repo.findOne({ where: { email, username } });
+        const user = await this.repo.findOne({ where: [{ email }, { username }] });
         if (!user) {
             throw new common_1.BadRequestException("User do not exists");
         }
@@ -99,12 +101,47 @@ let UsersService = class UsersService {
         const users = await this.repo.find();
         return users;
     }
+    async forgetPassword({ email, username }) {
+        const user = await this.repo.findOne({ where: [{ email }, { username }] });
+        if (!user) {
+            throw new common_1.NotFoundException("User not found");
+        }
+        const otpCode = this.generateOTP();
+        const otpCodeExpireDate = new Date();
+        otpCodeExpireDate.setMinutes(otpCodeExpireDate.getMinutes() + 1);
+        this.sendVerificationEmail(user.email, otpCode);
+    }
+    generateRandomNumber() {
+        const min = 100000;
+        const max = 999999;
+        const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+        return randomNumber.toString();
+    }
+    generateOTP() {
+        return this.generateRandomNumber();
+    }
+    async sendVerificationEmail(email, otpCode) {
+        await this.mailerService.sendMail({
+            to: email,
+            from: "bengoudifa.contact@gmail.com",
+            subject: "OTP Verification",
+            html: `<h3>Your OTP code is: ${otpCode}. This code will expire in 3 minutes.</h3>`,
+        });
+    }
+    async validatePasswordResetOTP(email, otp) {
+        const user = await this.repo.findOne({ where: { email } });
+        if (!user || user.otpCode !== otp || user.otpCodeExpireDate < new Date()) {
+            return false;
+        }
+        return true;
+    }
 };
 UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        mailer_1.MailerService])
 ], UsersService);
 exports.UsersService = UsersService;
 //# sourceMappingURL=users.service.js.map

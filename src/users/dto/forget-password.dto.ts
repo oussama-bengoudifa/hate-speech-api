@@ -1,6 +1,6 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional } from "class-validator";
 
-export class LoginDto {
+export class ForgetPasswordDto {
   @IsEmail()
   @IsOptional()
   email?: string;
@@ -8,10 +8,6 @@ export class LoginDto {
   @IsNotEmpty()
   @IsOptional()
   username?: string;
-
-  @IsNotEmpty()
-  @IsString()
-  password: string;
 
   validate() {
     if (!this.email) {

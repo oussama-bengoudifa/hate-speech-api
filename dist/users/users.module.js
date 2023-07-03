@@ -16,6 +16,7 @@ const passport_1 = require("@nestjs/passport");
 const auth_controller_1 = require("./auth.controller");
 const accessToken_strategy_1 = require("../strategies/accessToken.strategy");
 const nestjs_hash_1 = require("nestjs-hash");
+const mailer_1 = require("@nestjs-modules/mailer");
 let UsersModule = class UsersModule {
 };
 UsersModule = __decorate([
@@ -25,6 +26,17 @@ UsersModule = __decorate([
             jwt_1.JwtModule.register({}),
             passport_1.PassportModule,
             nestjs_hash_1.HashModule.forRoot({ type: "sha256" }),
+            mailer_1.MailerModule.forRoot({
+                transport: {
+                    host: "smtp.gmail.com",
+                    secure: true,
+                    port: 465,
+                    auth: {
+                        user: "bengoudifa.contact@gmail.com",
+                        pass: "wttfaqvgbhbaykob",
+                    },
+                },
+            }),
         ],
         controllers: [auth_controller_1.AuthController],
         providers: [users_service_1.UsersService, accessToken_strategy_1.AccessTokenStrategy],

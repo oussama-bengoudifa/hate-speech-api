@@ -2,14 +2,26 @@ import { UsersService } from "./users.service";
 import { LoginDto } from "./dto/login.dto";
 import { SignupDto } from "./dto/signup.dto";
 import { GetCodeDto } from "./dto/get-code.dto";
+import { ForgetPasswordDto } from "./dto/forget-password.dto";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
+import { User } from "./entities/user.entity";
+import { Repository } from "typeorm";
 export declare class AuthController {
     private readonly usersService;
-    constructor(usersService: UsersService);
-    signup(signupDto: SignupDto): Promise<{
-        access_token: string;
-    }>;
+    private repo;
+    constructor(usersService: UsersService, repo: Repository<User>);
+    signup(signupDto: SignupDto): Promise<User>;
     login(loginDto: LoginDto): Promise<{
         access_token: string;
+    }>;
+    resetPassword(resetPasswordDto: ResetPasswordDto): Promise<{
+        message: string;
+        status: number;
+        user: User;
+    }>;
+    forgetPassword({ email, username }: ForgetPasswordDto): Promise<{
+        message: string;
+        status: number;
     }>;
     deleteAll(): Promise<void>;
     loginCode(getCodeDto: GetCodeDto): Promise<{
@@ -19,5 +31,5 @@ export declare class AuthController {
     getCode(userId: number): Promise<{
         code: string;
     }>;
-    getUsers(): Promise<import("./entities/user.entity").User[]>;
+    getUsers(): Promise<User[]>;
 }

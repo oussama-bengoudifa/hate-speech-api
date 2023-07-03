@@ -12,18 +12,33 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoginDto = void 0;
 const class_validator_1 = require("class-validator");
 class LoginDto {
+    validate() {
+        if (!this.email) {
+            if (!this.username) {
+                throw new Error("At least one of email or username is required");
+            }
+        }
+        if (!this.username) {
+            if (!this.email) {
+                throw new Error("At least one of email or username is required");
+            }
+        }
+    }
 }
 __decorate([
     (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], LoginDto.prototype, "email", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], LoginDto.prototype, "password", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], LoginDto.prototype, "username", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], LoginDto.prototype, "password", void 0);
 exports.LoginDto = LoginDto;
 //# sourceMappingURL=login.dto.js.map

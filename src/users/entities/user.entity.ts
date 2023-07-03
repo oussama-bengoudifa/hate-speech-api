@@ -20,6 +20,12 @@ export class User {
   @Column({ default: false })
   isActive: boolean;
 
-  @Column({ nullable: true, default: null })
-  otp: string;
+  @Column({ nullable: true })
+  otpCode: string;
+
+  @Column({ nullable: true })
+  otpCodeExpireDate: Date;
+
+  @Column({ default: 5 })
+  optMaxTentative: number;
 }

@@ -5,5 +5,7 @@ export declare class User {
     password: string;
     code: string;
     isActive: boolean;
-    otp: string;
+    otpCode: string;
+    otpCodeExpireDate: Date;
+    optMaxTentative: number;
 }

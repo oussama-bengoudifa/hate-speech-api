@@ -4,15 +4,16 @@ import { JwtService } from "@nestjs/jwt";
 import { SignupDto } from "./dto/signup.dto";
 import { LoginDto } from "./dto/login.dto";
 import { GetCodeDto } from "./dto/get-code.dto";
+import { ForgetPasswordDto } from "./dto/forget-password.dto";
+import { MailerService } from "@nestjs-modules/mailer";
 export declare class UsersService {
     private repo;
     private jwtService;
-    constructor(repo: Repository<User>, jwtService: JwtService);
+    private readonly mailerService;
+    constructor(repo: Repository<User>, jwtService: JwtService, mailerService: MailerService);
     deleteAll(): Promise<void>;
     findUser(id: number): Promise<User>;
-    signup(signupDto: SignupDto): Promise<{
-        access_token: string;
-    }>;
+    signup(signupDto: SignupDto): Promise<User>;
     login(loginDto: LoginDto): Promise<{
         access_token: string;
     }>;
@@ -27,4 +28,9 @@ export declare class UsersService {
         code: string;
     }>;
     getUsers(): Promise<User[]>;
+    forgetPassword({ email, username }: ForgetPasswordDto): Promise<void>;
+    generateRandomNumber(): string;
+    generateOTP(): string;
+    sendVerificationEmail(email: string, otpCode: string): Promise<void>;
+    validatePasswordResetOTP(email: string, otp: string): Promise<boolean>;
 }
